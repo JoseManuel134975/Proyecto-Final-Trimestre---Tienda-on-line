@@ -43,3 +43,8 @@ body{
 .product img{
     width: 100%;
 }
+
+#observer{
+    height: 1px;
+    width: 1px;
+}
