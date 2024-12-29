@@ -43,3 +43,8 @@ body{
 .product img{
     width: 100%;
 }
+
+#gif{
+    width: 100%;
+    text-align: center;
+}
