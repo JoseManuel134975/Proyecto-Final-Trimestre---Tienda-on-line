@@ -42,9 +42,10 @@ body{
 
 .product img{
     width: 100%;
+    border-radius: 5px;
 }
 
-#gif{
+/* #gif{
     width: 100%;
     text-align: center;
-}
+} */
