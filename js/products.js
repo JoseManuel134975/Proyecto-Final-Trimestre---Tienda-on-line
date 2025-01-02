@@ -5,6 +5,7 @@ import { getAPI } from "../utils/getAPI.js";
 let currentPage = 1
 const limit = 8
 let loading = false
+export const cart = []
 
 const nextPage = () => {
     currentPage++
@@ -13,7 +14,6 @@ const nextPage = () => {
 
 const filterByCategory = (promise, value) => {
     value = value.toLowerCase().replace(/\s+/g, '')
-    console.log(value);
     const filter = promise.then((arr) => {
         return arr.filter((item) => "layout" in item && "category" in item.layout && item.layout.category.toLowerCase().replace(/\s+/g, '') === value)
     })
@@ -21,7 +21,7 @@ const filterByCategory = (promise, value) => {
 }
 
 const eventSubmit = () => {
-    document.getElementById('submit').addEventListener("click", (event) => {
+    document.getElementById('submitFilter').addEventListener("click", (event) => {
         event.preventDefault()
 
         const categoryValue = document.getElementById('categoria').value
@@ -29,6 +29,32 @@ const eventSubmit = () => {
         const newArr = filterByCategory(sliceShop, categoryValue)
         renderData(newArr)
     })
+
+    document.getElementById('submitSort').addEventListener("click", (event) => {
+        event.preventDefault()
+
+        const selectedValue = document.getElementById('Order').options[document.getElementById('Order').selectedIndex].value
+        const sliceShop = getNextData()
+        const newArr = sortBy(sliceShop, selectedValue)
+        renderData(newArr)
+    })
+}
+
+const sortBy = (promise, value) => {
+    value = value.toLowerCase().replace(/\s+/g, '')
+    let sort = []
+
+    if (value === 'ascendente') {
+        sort = promise.then((arr) => {
+            return arr.sort((a, b) => a.regularPrice - b.regularPrice)
+        })
+        return sort
+    } else {
+        sort = promise.then((arr) => {
+            return arr.sort((a, b) => b.regularPrice - a.regularPrice)
+        })
+        return sort
+    }
 }
 
 const beforePage = () => {
@@ -69,14 +95,13 @@ const renderData = (promise) => {
 
     let cont = 0
     loading = true
-    // const sliceShop = getNextData()
     const fragment = document.createDocumentFragment()
 
     manageBtn()
+    console.log(promise);
 
     promise.then((data) => {
         data.forEach((item) => {
-            console.log(item);
             const product = document.createElement('article')
             product.className = 'product'
             product.style.backgroundColor = 'transparent'
@@ -152,12 +177,35 @@ const renderData = (promise) => {
             }
 
             document.querySelector('.products').appendChild(fragment)
+            product.addEventListener("click", () => {
+                showInfo(item)
+                addToCart(item)
+            })
 
             cont++
         })
 
         loading = false
     })
+}
+
+const showInfo = (obj) => {
+    if ("brItems" in obj) {
+        alert(`Category: ${obj.layout.category} \nFinal price: ${obj.finalPrice} V-Bucks \nDescription: ${obj.brItems[0].description} \nRarity: ${obj.brItems[0].rarity.value} \nAdded: ${obj.brItems[0].added} \nType: ${obj.brItems[0].type.value} \nIntroduction: ${obj.brItems[0].introduction.text}`)
+    } else {
+        alert(`Category: ${obj.layout.category} \nFinal price: ${obj.finalPrice} V-Bucks`)
+    }
+}
+
+const addToCart = (item) => {
+    let add = prompt(`¿Quieres agregar este producto a tu carrito? (y/n)`)
+    add = add.toLowerCase()
+
+    if(add === 'y') {
+        cart.push(item)
+        alert(`¡Producto agregado correctamente! \nSe te va a redireccionar hacia la página del carrito...`)
+        location.href = '../views/cart.html'
+    }
 }
 
 const eventPages = () => {
